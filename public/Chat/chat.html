@@ -15,5 +15,13 @@
         <div class="message right">Hey How are you bro!</div>
         <div class="message left">I am fine</div>
     </div>
+    <div class="send">
+        <form onsubmit="chating(event)" id="send-container" method="POST">
+            <input type="text" name="messageInp" id="messageInp">
+            <button class="btn" type="submit">Send</button>
+        </form>
+    </div>
+    <script src="./chat.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/1.2.6/axios.min.js"></script>
 </body>
 </html>

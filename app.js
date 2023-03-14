@@ -7,11 +7,13 @@ const sequelize = require("./utils/database");
 const User = require("./models/user");
 
 const userRoutes = require("./routes/user");
+const chatRoutes = require("./routes/chat")
 
 const app = express();
 app.use(cors());
 app.use(express.json());
 app.use("/user", userRoutes);
+app.use("/user",chatRoutes)
 
 app.use(bodyParser.urlencoded({ extended: true }));
 
