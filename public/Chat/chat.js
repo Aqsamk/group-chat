@@ -69,23 +69,63 @@ function parseJwt (token) {
   return JSON.parse(jsonPayload);
 }
 
-window.addEventListener('DOMContentLoaded', ()=> {
-  const token  = localStorage.getItem('token')
-  const decodeToken = parseJwt(token)
-  console.log(decodeToken)
-  const name = decodeToken.name;
-  console.log(name)
-  axios.get('http://localhost:3000/user/getchat', { headers: {"Authorization" : token} })
-  .then(response => {
-          response.data.messages.forEach(message => {
+// window.addEventListener('DOMContentLoaded', ()=> {
+//   const token  = localStorage.getItem('token')
+//   const decodeToken = parseJwt(token)
+//   console.log(decodeToken)
+//   const name = decodeToken.name;
+//   console.log(name)
+//   axios.get('http://localhost:3000/user/getchat', { headers: {"Authorization" : token} })
+//   .then(response => {
+//           response.data.messages.forEach(message => {
 
-            addNewMessagetoUI(message);
-          })
-  }).catch(err => {
-      showError(err)
-  })
-});
+//             addNewMessagetoUI(message);
+//           })
+//   }).catch(err => {
+//       showError(err)
+//   })
+// });
 //
+
+// Define a function to make the API request
+const getChatMessages = (token) => {
+  axios.get('http://localhost:3000/user/getchat', { headers: {"Authorization" : token} })
+    .then(response => {
+      response.data.messages.forEach(message => {
+        addNewMessagetoUI(message);
+      })
+    })
+    .catch(err => {
+      showError(err)
+    });
+};
+
+// Call the function once on page load
+window.addEventListener('DOMContentLoaded', ()=> {
+  const token  = localStorage.getItem('token');
+  const decodeToken = parseJwt(token);
+  console.log(decodeToken);
+  const name = decodeToken.name;
+  console.log(name);
+  getChatMessages(token);
+});
+
+// Call the function every 5 seconds using setInterval
+setInterval(() => {
+  const token  = localStorage.getItem('token');
+  getChatMessages(token);
+}, 3000);
+const intervalId = setInterval(() => {
+  getChatMessages(token);
+}, 5000);
+
+// Stop the interval after 1 minute
+setTimeout(() => {
+  clearInterval(intervalId);
+}, 40000);
+
+
+
 function addNewMessagetoUI(message){
   const token  = localStorage.getItem('token')
   const decodeToken = parseJwt(token)
