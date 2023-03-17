@@ -24,10 +24,10 @@ const signup = async (req, res) => {
           .json({ err: "Bad Parameters . Something is missing." });
       }
       // Check if user already exists with given email
-      const user = await User.findOne({ email });
-      if (user) {
-          return res.status(409).json({ err: "Email already in use." });
-      }
+      // const user = await User.findOne({ email });
+      // if (user) {
+      //     return res.status(409).json({ err: "Email already in use." });
+      // }
       const saltrounds = 10;
       bcrypt.hash(password, saltrounds, async (err, hash) => {
         console.log(err);

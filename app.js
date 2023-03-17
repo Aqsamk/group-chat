@@ -5,6 +5,7 @@ const bodyParser = require('body-parser')
 
 const sequelize = require("./utils/database");
 const User = require("./models/user");
+const Message = require('./models/chat');
 
 const userRoutes = require("./routes/user");
 const chatRoutes = require("./routes/chat")
@@ -16,6 +17,10 @@ app.use("/user", userRoutes);
 app.use("/user",chatRoutes)
 
 app.use(bodyParser.urlencoded({ extended: true }));
+
+User.hasMany(Message);
+Message.belongsTo(User);
+
 
 
 sequelize

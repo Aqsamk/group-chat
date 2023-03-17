@@ -8,10 +8,11 @@ const Message=sequelize.define(`message`,{
         allowNull:false,
         primaryKey:true,
     },
-    message:{
+    messageInp:{
         type:Sequelize.STRING,
         allowNull:false,
-    }
+    },
+   userName:{type:Sequelize.STRING}
 })
 
 module.exports = Message;

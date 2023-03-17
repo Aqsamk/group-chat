@@ -7,7 +7,11 @@ const authenticate = async (req, res, next) => {
     const user = jwt.verify(token, "secretkey");
     console.log("userID>>>", user.userId);
     User.findByPk(user.userId).then((user) => {
-      req.user = user;
+      // req.user = user;
+      req.user = {
+        id: user.id,
+        name: user.name // Add the user's name to the req.user object
+      };
       next();
     });
   } catch (err) {
