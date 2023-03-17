@@ -1,47 +1,3 @@
-
-
-
-// const messageForm = document.getElementById('message-form');
-// const messageInput = document.getElementById('message-input');
-// const messageList = document.getElementById('message-list');
-
-// messageForm.addEventListener('submit', async (event) => {
-//   event.preventDefault();
-//   let messages = {messageInp: messageInput.value,}
-//   const token = localStorage.getItem('token');
-//   try {
-//     const response = await axios.post('http://localhost:3000/user/chat',messages ,{headers:{Authorization:token}
-      
-//     });
-//     const message = response.data.message;
-//     const li = document.createElement('li');
-//     li.innerHTML = `<span>${message.User.name}:</span> ${message.message}`;
-//     messageList.appendChild(li);
-//     messageInput.value = '';
-//   } catch (error) {
-//     console.error(error);
-//   }
-// });
-
-// async function loadMessages() {
-//   try {
-//     const token  = localStorage.getItem('token')
-//     // const decodeToken = parseJwt(token)
-//     // console.log(decodeToken)
-//     const response = await axios.get('http://localhost:3000/user/getchat',{ headers: {"Authorization" : token} });
-//     const messages = response.data.messages;
-//     for (const message of messages) {
-//       const li = document.createElement('li');
-//       li.innerHTML = `<span>${message.User.name}:</span> ${message.messageInp}`;
-//       messageList.appendChild(li);
-//     }
-//   } catch (error) {
-//     console.error(error);
-//   }
-// }
-
-///////////////////////////////////////////////////////
-
 async function addNewMessage(e){
   e.preventDefault();
 
@@ -69,38 +25,76 @@ function parseJwt (token) {
   return JSON.parse(jsonPayload);
 }
 
-// window.addEventListener('DOMContentLoaded', ()=> {
-//   const token  = localStorage.getItem('token')
-//   const decodeToken = parseJwt(token)
-//   console.log(decodeToken)
-//   const name = decodeToken.name;
-//   console.log(name)
-//   axios.get('http://localhost:3000/user/getchat', { headers: {"Authorization" : token} })
-//   .then(response => {
-//           response.data.messages.forEach(message => {
-
-//             addNewMessagetoUI(message);
-//           })
-//   }).catch(err => {
-//       showError(err)
-//   })
-// });
-//
 
 // Define a function to make the API request
+
+// const getChatMessages = (token) => {
+//   axios.get('http://localhost:3000/user/getchat', { headers: {"Authorization" : token} })
+//     .then(response => {
+//       response.data.messages.forEach(message => {
+//         addNewMessagetoUI(message);
+//       })
+//     })
+//     .catch(err => {
+//       showError(err)
+//     });
+// };
+
+// Call the function once on page load
 const getChatMessages = (token) => {
-  axios.get('http://localhost:3000/user/getchat', { headers: {"Authorization" : token} })
-    .then(response => {
-      response.data.messages.forEach(message => {
+  const messages = JSON.parse(localStorage.getItem("messages")) || [];
+  messages.forEach((message) => {
+    addNewMessagetoUI(message);
+  });
+
+  axios
+    .get("http://localhost:3000/user/getchat", { headers: { Authorization: token } })
+    .then((response) => {
+      response.data.messages.forEach((message) => {
         addNewMessagetoUI(message);
-      })
+      });
     })
-    .catch(err => {
-      showError(err)
+    .catch((err) => {
+      showError(err);
     });
 };
 
-// Call the function once on page load
+
+
+let lastMessageTimestamp = null;
+
+const getNewChatMessages = (token) => {
+  axios
+    .get("http://localhost:3000/user/getchat", {
+      headers: { Authorization: token },
+      params: { after: lastMessageTimestamp },
+    })
+    .then((response) => {
+      response.data.messages.forEach((message) => {
+        addNewMessagetoUI(message);
+      });
+
+      // Update the timestamp of the latest message we received
+      const lastMessage = response.data.messages[response.data.messages.length - 1];
+      if (lastMessage) {
+        lastMessageTimestamp = lastMessage.createdAt;
+        localStorage.setItem("lastMessageTimestamp", lastMessageTimestamp);
+      }
+    })
+    .catch((err) => {
+      showError(err);
+    });
+};
+
+// Call the function every 5 seconds using setInterval
+const token = localStorage.getItem("token");
+getChatMessages(token);
+
+setInterval(() => {
+  getNewChatMessages(token);
+}, 5000);
+
+
 window.addEventListener('DOMContentLoaded', ()=> {
   const token  = localStorage.getItem('token');
   const decodeToken = parseJwt(token);
@@ -138,6 +132,11 @@ function addNewMessagetoUI(message){
         ${message.userName} : ${message.messageInp}
          
       </div>`
+
+   // Store the message in local storage
+   const messages = JSON.parse(localStorage.getItem("messages")) || [];
+   messages.push(message);
+   localStorage.setItem("messages", JSON.stringify(messages));
 }
 
 function showError(err){
